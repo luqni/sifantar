@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Delivery;
+use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -136,5 +137,17 @@ class HomeController extends Controller
         }
 
         return view('pages.delivery-detail', compact('delivery'));
+    }
+
+    public function articles()
+    {
+        $articles = Article::orderBy('created_at', 'desc')->get();
+        return view('pages.articles', compact('articles'));
+    }
+
+    public function articleDetail($slug)
+    {
+        $article = Article::where('slug', $slug)->firstOrFail();
+        return view('pages.article-detail', compact('article'));
     }
 }

@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/tracking/{id}', [HomeController::class, 'trackingApi'])->name('tracking.api');
     Route::get('/history', [HomeController::class, 'history'])->name('history');
     Route::get('/delivery/{id}', [HomeController::class, 'show'])->name('delivery.show');
+    Route::get('/articles', [HomeController::class, 'articles'])->name('articles');
+    Route::get('/article/{slug}', [HomeController::class, 'articleDetail'])->name('article.show');
 });
 
 // Page routes
