@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Delivery;
 use App\Models\DeliveryItem;
+use App\Models\Chat;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +37,7 @@ class DeliveryRequestController extends Controller
 
         // Split the medicine list by new lines
         $medicines = explode("\n", str_replace("\r", "", $request->medicine_list));
+        $medSummary = [];
         
         foreach ($medicines as $name) {
             $name = trim($name);
@@ -45,7 +48,20 @@ class DeliveryRequestController extends Controller
                     'quantity' => 1,
                     'price_at_time' => 0,
                 ]);
+                $medSummary[] = $name;
             }
+        }
+
+        // Auto-send chat to Admin
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            $summaryText = implode(", ", $medSummary);
+            Chat::create([
+                'sender_id' => Auth::id(),
+                'receiver_id' => $admin->id,
+                'message' => "Halo Admin, saya baru saja membuat pesanan baru (#{$delivery->tracking_number}) dengan rincian obat: {$summaryText}. Mohon segera diproses ya. Terima kasih!",
+                'is_read' => false
+            ]);
         }
 
         return redirect()->route('page', 'home')->with('success', 'Permintaan obat berhasil dikirim! Silakan tunggu admin memprosesnya.');

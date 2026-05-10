@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('page', 'index');
-});
+})->name('login');
 
 // Authentication Routes
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Routes (Admin Only)
@@ -22,6 +23,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/chat', [AdminController::class, 'chat'])->name('admin.chat');
     Route::get('/admin/delivery/{id}', [AdminController::class, 'showDelivery'])->name('admin.delivery.show');
     Route::post('/admin/delivery/{id}/status', [AdminController::class, 'updateDeliveryStatus'])->name('admin.delivery.status');
+    Route::post('/admin/articles', [AdminController::class, 'storeArticle'])->name('admin.articles.store');
+    Route::get('/admin/articles/{id}/edit', [AdminController::class, 'editArticle'])->name('admin.articles.edit');
+    Route::put('/admin/articles/{id}', [AdminController::class, 'updateArticle'])->name('admin.articles.update');
+    Route::delete('/admin/articles/{id}', [AdminController::class, 'deleteArticle'])->name('admin.articles.delete');
 });
 
 // Courier Routes (Courier Only)
@@ -50,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/delivery/{id}', [HomeController::class, 'show'])->name('delivery.show');
     Route::get('/articles', [HomeController::class, 'articles'])->name('articles');
     Route::get('/article/{slug}', [HomeController::class, 'articleDetail'])->name('article.show');
+    Route::get('/notifications', [HomeController::class, 'notifications'])->name('notifications');
 });
 
 // Page routes

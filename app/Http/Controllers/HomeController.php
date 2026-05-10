@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Delivery;
 use App\Models\Article;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -149,5 +150,14 @@ class HomeController extends Controller
     {
         $article = Article::where('slug', $slug)->firstOrFail();
         return view('pages.article-detail', compact('article'));
+    }
+
+    public function notifications()
+    {
+        $notifications = Notification::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('pages.notifications', compact('notifications'));
     }
 }

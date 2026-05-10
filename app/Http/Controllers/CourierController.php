@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Delivery;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,6 +39,13 @@ class CourierController extends Controller
             'status' => 'delivering'
         ]);
 
+        Notification::create([
+            'user_id' => $delivery->patient_id,
+            'title' => "🚚 Obat Sedang Dikirim",
+            'message' => "Pesanan obat #{$delivery->tracking_number} sedang dalam perjalanan menuju alamat Anda.",
+            'type' => 'delivery'
+        ]);
+
         return back()->with('success', 'Pesanan berhasil Anda ambil. Selamat bertugas!');
     }
 
@@ -48,6 +56,13 @@ class CourierController extends Controller
             ->firstOrFail();
 
         $delivery->update(['status' => 'completed']);
+
+        Notification::create([
+            'user_id' => $delivery->patient_id,
+            'title' => "✅ Obat Telah Sampai",
+            'message' => "Pesanan #{$delivery->tracking_number} telah sampai di tujuan. Silakan konfirmasi jika sudah diterima.",
+            'type' => 'success'
+        ]);
 
         return back()->with('success', 'Pesanan telah berhasil diantarkan!');
     }

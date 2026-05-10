@@ -33,6 +33,26 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'role' => 'patient',
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('home');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
