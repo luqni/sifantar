@@ -2,25 +2,27 @@
 @section('title', 'Profil - SIFANTAR')
 @section('content')
 <!-- Header / Hero -->
-    <div class="bg-gradient-to-br from-primary-orange to-orange-400 rounded-b-[40px] px-6 pt-12 pb-24 relative overflow-hidden">
-        <div class="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
-        <div class="flex items-center gap-5 relative z-10">
-            <div class="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white shadow-2xl border border-white/30">
-                <i data-lucide="smile" class="w-8 h-8"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-black text-white leading-tight">Profil Anda</h2>
-                <p class="text-[10px] text-white opacity-80 font-black uppercase tracking-[0.2em]">Pusat Kendali Akun</p>
+    <div class="relative">
+        <div class="bg-gradient-to-br from-primary-orange to-orange-400 rounded-b-[40px] px-6 pt-12 pb-24 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay"></div>
+            <div class="flex items-center gap-5 relative z-10">
+                <div class="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white shadow-2xl border border-white/30">
+                    <i data-lucide="smile" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-white leading-tight">Profil Anda</h2>
+                    <p class="text-[10px] text-white opacity-80 font-black uppercase tracking-[0.2em]">Pusat Kendali Akun</p>
+                </div>
             </div>
         </div>
 
         <div class="absolute bottom-0 left-6 right-6 translate-y-1/2 bg-white rounded-3xl p-2.5 flex items-center gap-4 shadow-2xl shadow-gray-200">
             <div class="h-16 w-full bg-primary-orange/90 rounded-2xl flex items-center p-3 gap-4 border border-orange-300">
                 <div class="w-12 h-12 bg-gray-100 rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden shadow-inner">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Budi" alt="Profile" class="w-full h-full object-cover">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ urlencode(auth()->user()->name) }}" alt="Profile" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1">
-                    <h3 class="font-black text-white text-base leading-none mb-1">Budi Santoso</h3>
+                    <h3 class="font-black text-white text-base leading-none mb-1">{{ auth()->user()->name }}</h3>
                     <div class="flex items-center gap-1 opacity-80">
                         <i data-lucide="award" class="w-3 h-3 text-white"></i>
                         <span class="text-[9px] text-white font-bold uppercase tracking-widest">Pasien Prioritas</span>
@@ -72,7 +74,10 @@
         </div>
 
         <!-- Danger Zone -->
-        <a href="{{ route('page', 'index') }}" class="w-full flex items-center gap-4 p-5 bg-red-50 hover:bg-red-100 rounded-3xl transition-all active:scale-[0.98] mt-8 group border border-red-100 shadow-sm">
+        <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">
+            @csrf
+        </form>
+        <button onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="w-full flex items-center gap-4 p-5 bg-red-50 hover:bg-red-100 rounded-3xl transition-all active:scale-[0.98] mt-8 group border border-red-100 shadow-sm cursor-pointer">
             <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center text-red-500 shadow-sm border border-red-50 group-hover:scale-110 transition-transform">
                 <i data-lucide="log-out" class="w-5 h-5"></i>
             </div>
@@ -81,7 +86,7 @@
                 <p class="text-[9px] text-red-400 font-black uppercase tracking-widest">Sesi anda akan diakhiri</p>
             </div>
             <i data-lucide="arrow-right" class="w-5 h-5 text-red-300"></i>
-        </a>
+        </button>
     </div>
 
     <!-- Bottom Navigation -->
