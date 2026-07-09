@@ -12,7 +12,7 @@
         <div class="space-y-2">
             <label class="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase ml-1">ID Pasien</label>
             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-inner flex items-center justify-between">
-                <span class="text-gray-800 font-black">USR001</span>
+                <span class="text-gray-800 font-black">USR{{ str_pad(auth()->user()->id, 3, '0', STR_PAD_LEFT) }}</span>
                 <i data-lucide="copy" class="w-4 h-4 text-gray-300"></i>
             </div>
         </div>
@@ -20,7 +20,7 @@
         <div class="space-y-2">
             <label class="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase ml-1">Nama Lengkap</label>
             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-inner">
-                <span class="text-gray-800 font-bold">Budi Santoso</span>
+                <span class="text-gray-800 font-bold">{{ auth()->user()->name }}</span>
             </div>
         </div>
 
@@ -28,7 +28,7 @@
             <label class="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase ml-1">Email Terdaftar</label>
             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-inner flex items-center gap-3">
                 <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
-                <span class="text-gray-800 font-bold">budi@gmail.com</span>
+                <span class="text-gray-800 font-bold">{{ auth()->user()->email }}</span>
             </div>
         </div>
 
@@ -51,9 +51,9 @@
 
     <!-- Floating Action Button -->
     <div class="fixed bottom-24 right-6">
-        <button class="w-14 h-14 bg-primary-green rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-green-200 active:scale-90 transition-transform">
+        <a href="{{ route('profile.edit') }}" class="w-14 h-14 bg-primary-green rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-green-200 active:scale-90 transition-transform">
             <i data-lucide="edit-3" class="w-6 h-6"></i>
-        </button>
+        </a>
     </div>
 
     <!-- Bottom Navigation -->

@@ -28,9 +28,9 @@
                         <span class="text-[9px] text-white font-bold uppercase tracking-widest">Pasien Prioritas</span>
                     </div>
                 </div>
-                <button class="p-2 text-white bg-white/20 rounded-xl">
+                <a href="{{ route('profile.edit') }}" class="p-2 text-white bg-white/20 rounded-xl">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -60,7 +60,7 @@
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-300"></i>
             </a>
 
-            <div class="flex items-center gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-all group cursor-pointer active:scale-[0.98]">
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-all group cursor-pointer active:scale-[0.98]">
                 <div class="w-11 h-11 bg-yellow-50 rounded-xl flex items-center justify-center text-yellow-600 group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-white transition-all shadow-sm">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </div>
@@ -68,9 +68,8 @@
                     <h4 class="text-sm font-black text-gray-800 leading-none mb-1.5">Pengaturan</h4>
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Privasi & Keamanan</p>
                 </div>
-                <span class="px-2 py-0.5 bg-red-100 text-red-500 text-[8px] font-black rounded uppercase mr-2 tracking-widest">Update</span>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-300"></i>
-            </div>
+            </a>
         </div>
 
         <!-- Danger Zone -->

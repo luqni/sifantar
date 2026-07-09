@@ -6,7 +6,9 @@ use App\Models\Delivery;
 use App\Models\Article;
 use App\Models\Chat;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -130,5 +132,48 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.articles')->with('success', 'Artikel berhasil diperbarui.');
+    }
+
+    public function users()
+    {
+        $users = User::orderBy('created_at', 'desc')->get();
+        return view('pages.admin-users', compact('users'));
+    }
+
+    public function editUser($id)
+    {
+        $user = User::findOrFail($id);
+        return view('pages.admin-user-edit', compact('user'));
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'required|in:patient,courier,admin',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.users')->with('success', 'Data user berhasil diperbarui.');
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Reset to default password
+        $user->update([
+            'password' => Hash::make('password123')
+        ]);
+
+        return back()->with('success', 'Password user berhasil direset menjadi: password123');
     }
 }

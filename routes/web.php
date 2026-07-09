@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CourierController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +20,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin Routes (Admin Only)
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUser'])->name('admin.users.edit');
+    Route::put('/admin/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+    Route::post('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword'])->name('admin.users.reset-password');
     Route::get('/admin/articles', [AdminController::class, 'articles'])->name('admin.articles');
     Route::get('/admin/chat', [AdminController::class, 'chat'])->name('admin.chat');
     Route::get('/admin/delivery/{id}', [AdminController::class, 'showDelivery'])->name('admin.delivery.show');
@@ -40,6 +45,8 @@ Route::middleware(['auth', 'courier'])->group(function () {
 // Patient/General Auth Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     
     // Chat Routes
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');

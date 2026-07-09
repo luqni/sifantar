@@ -45,6 +45,21 @@
             <span class="font-black text-sm">{{ $stats['delivering'] }}</span>
         </div>
     </div>
+
+    <div class="mt-6 relative z-10">
+        <a href="{{ route('admin.users') }}" class="w-full bg-white/20 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between text-white border border-white/20 hover:bg-white/30 transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-sm">Manajemen User</h3>
+                    <p class="text-[10px] opacity-80 uppercase tracking-widest font-bold">Kelola Data Pengguna</p>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </a>
+    </div>
 </div>
 
 <!-- Order Management -->
