@@ -154,12 +154,16 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:patient,courier,admin',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:1000',
         ]);
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
+            'phone' => $request->phone,
+            'address' => $request->address,
         ]);
 
         return redirect()->route('admin.users')->with('success', 'Data user berhasil diperbarui.');

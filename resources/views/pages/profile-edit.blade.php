@@ -46,6 +46,22 @@
             </div>
         </div>
 
+        <div>
+            <label class="block text-xs font-black text-gray-800 uppercase tracking-widest mb-2">Nomor HP</label>
+            <div class="input-field">
+                <i data-lucide="phone" class="w-5 h-5 text-gray-400"></i>
+                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full bg-transparent border-none focus:ring-0 text-sm font-medium placeholder-gray-400 outline-none">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-black text-gray-800 uppercase tracking-widest mb-2">Alamat</label>
+            <div class="input-field items-start">
+                <i data-lucide="map-pin" class="w-5 h-5 text-gray-400 mt-1"></i>
+                <textarea name="address" rows="3" class="w-full bg-transparent border-none focus:ring-0 text-sm font-medium placeholder-gray-400 outline-none resize-none">{{ old('address', $user->address) }}</textarea>
+            </div>
+        </div>
+
         <div class="pt-4 border-t border-gray-100">
             <h4 class="text-sm font-black text-gray-800 mb-4">Ganti Password <span class="text-[10px] text-gray-400 font-medium">(opsional)</span></h4>
             

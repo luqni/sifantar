@@ -36,7 +36,7 @@
             <label class="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase ml-1">No. Telepon</label>
             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-inner flex items-center gap-3">
                 <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
-                <span class="text-gray-800 font-bold">08123456789</span>
+                <span class="text-gray-800 font-bold">{{ auth()->user()->phone ?? 'Belum diatur' }}</span>
             </div>
         </div>
 
@@ -44,7 +44,7 @@
             <label class="text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase ml-1">Alamat Utama</label>
             <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-inner flex items-start gap-3">
                 <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-1"></i>
-                <span class="text-gray-800 font-bold leading-relaxed">Jl. Kesehatan No. 123, Blok C, Jakarta Selatan, 12345</span>
+                <span class="text-gray-800 font-bold leading-relaxed">{{ auth()->user()->address ?? 'Belum diatur' }}</span>
             </div>
         </div>
     </div>
