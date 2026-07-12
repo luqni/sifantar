@@ -15,7 +15,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         $deliveries = Delivery::with(['patient', 'items.medicine'])
-            ->whereIn('status', ['pending', 'ready', 'awaiting_courier'])
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'awaiting_courier'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -179,5 +179,47 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Password user berhasil direset menjadi: password123');
+    }
+
+    public function storeOrderFromChat(Request $request)
+    {
+        $request->validate([
+            'patient_id' => 'required|exists:users,id',
+            'medicine_list' => 'required|string',
+            'total_price' => 'nullable|numeric',
+            'delivery_address' => 'required|string',
+        ]);
+
+        $delivery = Delivery::create([
+            'patient_id' => $request->patient_id,
+            'status' => 'preparing', // Langsung diproses karena admin yang buat
+            'tracking_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(2))),
+            'delivery_address' => $request->delivery_address,
+            'total_price' => $request->total_price ?? 0,
+        ]);
+
+        // Split the medicine list by new lines
+        $medicines = explode("\n", str_replace("\r", "", $request->medicine_list));
+        
+        foreach ($medicines as $name) {
+            $name = trim($name);
+            if (!empty($name)) {
+                \App\Models\DeliveryItem::create([
+                    'delivery_id' => $delivery->id,
+                    'medicine_name' => $name,
+                    'quantity' => 1,
+                    'price_at_time' => 0,
+                ]);
+            }
+        }
+
+        // Send auto chat to patient
+        Chat::create([
+            'sender_id' => auth()->id(),
+            'receiver_id' => $request->patient_id,
+            'message' => "Pesanan Anda telah kami buat dengan nomor pelacakan #{$delivery->tracking_number}. Obat sedang kami siapkan.",
+        ]);
+
+        return back()->with('success', 'Pesanan berhasil dibuat untuk pasien.');
     }
 }

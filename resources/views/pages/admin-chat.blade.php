@@ -17,7 +17,7 @@
 <!-- Chat List -->
 <div class="px-6 py-4 space-y-3 mb-24">
     @forelse($chats as $chat)
-    <a href="{{ route('page', 'chat') }}" class="block {{ !$chat->is_read ? 'bg-orange-50 border-orange-100' : 'bg-white border-gray-100' }} rounded-2xl border shadow-sm p-4 relative">
+    <a href="{{ route('page', ['page' => 'chat', 'user_id' => $chat->sender_id]) }}" class="block {{ !$chat->is_read ? 'bg-orange-50 border-orange-100' : 'bg-white border-gray-100' }} rounded-2xl border shadow-sm p-4 relative">
         @if(!$chat->is_read)
         <div class="absolute top-4 right-4 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></div>
         @endif
@@ -30,9 +30,17 @@
             <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-baseline mb-1">
                     <h3 class="font-black text-gray-800 text-sm truncate pr-4">{{ $chat->sender->name }}</h3>
-                    <span class="text-[10px] text-gray-500 font-bold">{{ $chat->created_at->format('H:i') }}</span>
+                    <span class="text-[10px] text-gray-500 font-bold">
+                        {{ $chat->created_at->timezone('Asia/Jakarta')->isToday() ? $chat->created_at->timezone('Asia/Jakarta')->format('H:i') : $chat->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
+                    </span>
                 </div>
-                <p class="text-xs text-gray-600 font-medium truncate">{{ $chat->message }}</p>
+                <p class="text-xs text-gray-600 font-medium truncate">
+                    @if($chat->message)
+                        {{ $chat->message }}
+                    @elseif($chat->image_path)
+                        <i data-lucide="image" class="w-3 h-3 inline-block mr-1"></i> Mengirim gambar
+                    @endif
+                </p>
             </div>
         </div>
     </a>

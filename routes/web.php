@@ -26,6 +26,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword'])->name('admin.users.reset-password');
     Route::get('/admin/articles', [AdminController::class, 'articles'])->name('admin.articles');
     Route::get('/admin/chat', [AdminController::class, 'chat'])->name('admin.chat');
+    Route::post('/admin/chat/order', [AdminController::class, 'storeOrderFromChat'])->name('admin.chat.order');
     Route::get('/admin/delivery/{id}', [AdminController::class, 'showDelivery'])->name('admin.delivery.show');
     Route::post('/admin/delivery/{id}/status', [AdminController::class, 'updateDeliveryStatus'])->name('admin.delivery.status');
     Route::post('/admin/articles', [AdminController::class, 'storeArticle'])->name('admin.articles.store');

@@ -84,6 +84,8 @@
                     </div>
                     @if($delivery->status === 'pending')
                         <span class="bg-orange-100 text-primary-orange text-[10px] font-black px-2 py-1 rounded-lg uppercase">Menunggu</span>
+                    @elseif($delivery->status === 'preparing')
+                        <span class="bg-yellow-100 text-yellow-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Disiapkan</span>
                     @else
                         <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Siap</span>
                     @endif
@@ -101,10 +103,19 @@
                 @if($delivery->status === 'pending')
                     <form action="{{ route('admin.delivery.status', $delivery->id) }}" method="POST">
                         @csrf
-                        <input type="hidden" name="status" value="ready">
+                        <input type="hidden" name="status" value="preparing">
                         <button type="submit" class="w-full bg-primary-orange text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-100/50 active:scale-95 transition-transform">
                             <i data-lucide="package-check" class="w-4 h-4"></i>
                             Terima & Siapkan Obat
+                        </button>
+                    </form>
+                @elseif($delivery->status === 'preparing')
+                    <form action="{{ route('admin.delivery.status', $delivery->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="status" value="ready">
+                        <button type="submit" class="w-full bg-green-500 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-green-100/50 active:scale-95 transition-transform">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Selesai Disiapkan
                         </button>
                     </form>
                 @elseif($delivery->status === 'ready')
