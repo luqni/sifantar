@@ -21,6 +21,13 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
+            if (! Auth::user()->hasVerifiedEmail()) {
+                Auth::user()->sendEmailVerificationNotification();
+
+                return redirect()->route('verification.notice')
+                    ->with('status', 'verification-link-sent');
+            }
+
             if (Auth::user()->isCourier()) {
                 return redirect()->route('courier.dashboard');
             }
@@ -48,9 +55,12 @@ class AuthController extends Controller
             'role' => 'patient',
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         Auth::login($user);
 
-        return redirect()->route('home');
+        return redirect()->route('verification.notice')
+            ->with('status', 'verification-link-sent');
     }
 
     public function logout(Request $request)
