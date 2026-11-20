@@ -59,7 +59,14 @@
 
         <div class="grid grid-cols-2 gap-3">
             <a href="{{ route('tracking.show', $delivery->id) }}" class="bg-blue-100 text-blue-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center shadow-sm active:scale-95 transition-transform">Lacak</a>
-            <button class="bg-gray-100 text-gray-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm active:scale-95 transition-transform">Beli Lagi</button>
+            @if($delivery->status === 'completed')
+            <a href="{{ route('delivery-request.create', ['from' => $delivery->id]) }}" class="bg-gray-100 text-gray-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-1.5">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                Beli Lagi
+            </a>
+            @else
+            <button type="button" disabled class="bg-gray-100 text-gray-300 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm cursor-not-allowed opacity-60">Beli Lagi</button>
+            @endif
         </div>
     </div>
     @empty

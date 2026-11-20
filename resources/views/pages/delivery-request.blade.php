@@ -11,6 +11,19 @@
 </div>
 
 <div class="px-6 py-6 pb-24">
+    @if(isset($repeat) && $repeat)
+    <div class="mb-5 p-4 bg-green-50 border border-green-100 rounded-2xl flex items-start gap-3">
+        <i data-lucide="rotate-ccw" class="w-4 h-4 text-primary-green mt-0.5 shrink-0"></i>
+        <div>
+            <p class="text-[10px] font-black text-primary-green uppercase tracking-widest">Beli Lagi</p>
+            <p class="text-[11px] text-gray-600 font-medium mt-1 leading-relaxed">
+                Formulir diisi otomatis dari pesanan <span class="font-black text-gray-800">#{{ $repeat->tracking_number }}</span>.
+                Periksa kembali daftar obat sebelum mengirim.
+            </p>
+        </div>
+    </div>
+    @endif
+
     <form action="{{ route('delivery-request.store') }}" method="POST">
         @csrf
         <input type="hidden" name="latitude" id="lat_input">
@@ -23,14 +36,14 @@
             </div>
             <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm focus-within:border-primary-green transition-colors">
                 <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Tuliskan nama obat (satu obat per baris):</p>
-                <textarea name="medicine_list" rows="6" required placeholder="Contoh:&#10;Paracetamol 500mg (10 tablet)&#10;Amoxicillin (1 botol)&#10;Vitamin C..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none"></textarea>
+                <textarea name="medicine_list" rows="6" required placeholder="Contoh:&#10;Paracetamol 500mg (10 tablet)&#10;Amoxicillin (1 botol)&#10;Vitamin C..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none">{{ old('medicine_list', $medicines ?? '') }}</textarea>
             </div>
         </div>
 
         <div class="mb-8">
             <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Alamat Pengantaran</h3>
             <div class="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm focus-within:border-primary-orange transition-colors">
-                <textarea name="address" rows="3" required placeholder="Masukkan alamat lengkap pengantaran..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none"></textarea>
+                <textarea name="address" rows="3" required placeholder="Masukkan alamat lengkap pengantaran..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none">{{ old('address', $repeat->delivery_address ?? '') }}</textarea>
             </div>
         </div>
 

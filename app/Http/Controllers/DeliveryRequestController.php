@@ -11,9 +11,27 @@ use Illuminate\Support\Facades\Auth;
 
 class DeliveryRequestController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        return view('pages.delivery-request');
+        // Prefill "Beli Lagi": bawa alamat dari pesanan lama bila ada order_id yang valid
+        $repeat = null;
+        $medicines = '';
+
+        if ($request->filled('from')) {
+            $repeat = Delivery::with('items')
+                ->where('id', $request->integer('from'))
+                ->where('patient_id', Auth::id())
+                ->first();
+
+            if ($repeat) {
+                $medicines = $repeat->items
+                    ->map(fn ($item) => $item->medicine ? $item->medicine->name : $item->medicine_name)
+                    ->filter()
+                    ->implode("\n");
+            }
+        }
+
+        return view('pages.delivery-request', compact('repeat', 'medicines'));
     }
 
     public function store(Request $request)
