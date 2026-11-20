@@ -11,6 +11,14 @@
 - Middleware alias: `admin`, `courier` (didaftarkan di `bootstrap/app.php`).
 
 ## Log Keputusan & Catatan Khusus
+- **2026-11-20 — TOMBOL "BELI LAGI" DIAKTIFKAN (Takeout)**: Sebelumnya `history.blade.php` hanya punya `<button>` mati tanpa aksi.
+  - `history.blade.php`: tombol jadi `<a href="{{ route('delivery-request.create', ['from' => $delivery->id]) }}">` **hanya bila `status === 'completed'`**; status lain tetap `<button disabled>` abu pudar. Ikon `rotate-ccw`.
+  - `DeliveryRequestController::create(Request $request)` sekarang menerima query `?from=ID`: ambil `Delivery::with('items')` yang **`where('patient_id', Auth::id())`** (WAJIB — kalau tidak, pasien bisa mengintip/menyalin order pasien lain), lalu render view dengan `compact('repeat','medicines')`. `$medicines` = nama obat per baris (`medicine->name` fallback `medicine_name`).
+  - `delivery-request.blade.php`: banner hijau "Formulir diisi otomatis dari pesanan #TRACKING" saat `$repeat` ada; textarea pakai `old('medicine_list', $medicines ?? '')` & `old('address', $repeat->delivery_address ?? '')` supaya isian tidak hilang saat validasi gagal.
+  - `store()` tidak diubah — alur tetap buat `Delivery` baru + `DeliveryItem` per baris + auto-chat ke admin.
+  - Verifikasi curl nyata (login `pasien@sifantar.com` / sandi seeder `password`): `/history` 200 memuat `delivery-request?from=1,2,4,5`; `?from=1` → textarea `Vitamin C` + alamat `Citayam` + banner tracking; `?from=6` (milik pasien lain) & `?from=999` → form kosong tanpa banner; submit → 302 `/home`, DB berisi `ORD-20261120-4AD4` pending + auto-chat admin. Data uji sudah dihapus lagi.
+  - ⚠️ Sandi seeder pasien `pasien@sifantar.com` adalah `password` (bukan `password123`).
+
 - **2026-11-20 — REGISTER KURIR + LUPA/RESET PASSWORD + SEEDER ADMIN**:
   - **Register 2 tipe akun**: `pages/register.blade.php` kini punya tab Pasien/Kurir. Halaman kurir khusus `pages/register-kurir.blade.php` (`/{page}` = `register-kurir`) yang hanya `@include('pages.register', ['forceMode' => 'kurir'])` — markup tunggal, tidak duplikat. Mode kurir menampilkan field tambahan: `phone` (wajib), `address` (wajib), `vehicle` (motor/mobil/sepeda), `vehicle_plate` (wajib), `identity_number`/NIK (wajib). Field ini hanya disimpan ke kolom `users` yang sudah ada (phone, address) — data kendaraan/NIK **divalidasi tapi belum dipersist** (belum ada kolom; butuh migrasi bila ingin disimpan).
   - `AuthController::register` menormalisasi `role` (`kurir|courier` → `courier`, sisanya `patient`) lewat `$request->merge()` **sebelum** `validate()`. ⚠️ **PITFALL yang sudah diperbaiki**: nilai hasil `merge()` tidak otomatis masuk `$data` hasil `validate()` — wajib cantumkan `'role' => ['required','in:patient,courier']` di aturan validasi, kalau tidak → `Undefined array key "role"` (HTTP 500).
