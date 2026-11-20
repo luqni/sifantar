@@ -11,6 +11,18 @@
 - Middleware alias: `admin`, `courier` (didaftarkan di `bootstrap/app.php`).
 
 ## Log Keputusan & Catatan Khusus
+- **2026-11-20 — REGISTER KURIR + LUPA/RESET PASSWORD + SEEDER ADMIN**:
+  - **Register 2 tipe akun**: `pages/register.blade.php` kini punya tab Pasien/Kurir. Halaman kurir khusus `pages/register-kurir.blade.php` (`/{page}` = `register-kurir`) yang hanya `@include('pages.register', ['forceMode' => 'kurir'])` — markup tunggal, tidak duplikat. Mode kurir menampilkan field tambahan: `phone` (wajib), `address` (wajib), `vehicle` (motor/mobil/sepeda), `vehicle_plate` (wajib), `identity_number`/NIK (wajib). Field ini hanya disimpan ke kolom `users` yang sudah ada (phone, address) — data kendaraan/NIK **divalidasi tapi belum dipersist** (belum ada kolom; butuh migrasi bila ingin disimpan).
+  - `AuthController::register` menormalisasi `role` (`kurir|courier` → `courier`, sisanya `patient`) lewat `$request->merge()` **sebelum** `validate()`. ⚠️ **PITFALL yang sudah diperbaiki**: nilai hasil `merge()` tidak otomatis masuk `$data` hasil `validate()` — wajib cantumkan `'role' => ['required','in:patient,courier']` di aturan validasi, kalau tidak → `Undefined array key "role"` (HTTP 500).
+  - Kurir setelah register langsung `Auth::login` + redirect `courier.dashboard`; pasien → `page:home`. Keduanya `email_verified_at = now()`.
+  - Checkbox `terms` wajib (`accepted`) — error message kustom.
+  - CSS baru `.btn-primary-orange` di `layouts/app.blade.php` (tombol kurir oranye).
+  - **Lupa/reset password** (pakai broker bawaan Laravel, tabel `password_reset_tokens` sudah ada): `GET/POST /forgot-password` (`password.request`, `password.email` + `throttle:6,1`), `GET /reset-password/{token}` (`password.reset`), `POST /reset-password` (`password.update`). View: `pages/forgot-password.blade.php`, `pages/reset-password.blade.php`. Login page dapat tautan "Lupa Kata Sandi?".
+  - **Admin bantu reset**: `POST /admin/users/{id}/send-reset-link` (`admin.users.send-reset-link`) → tombol ✉️ di `pages/admin-users.blade.php`. Tombol lama reset-paksa ke `password123` tetap ada. `AdminController::sendResetLink()` mengembalikan flash `error` juga (view sudah menampilkan `session('error')`).
+  - **Seeder**: `database/seeders/AdminUserSeeder.php` — idempoten (`updateOrCreate`-style manual), **tidak menimpa password** admin yang sudah ada, kredensial bisa diatur via env `ADMIN_EMAIL`/`ADMIN_PASSWORD`/`ADMIN_NAME`/`ADMIN_PHONE`. Jalankan `php artisan db:seed --class=AdminUserSeeder`. Catatan: admin lama `admin@sifantar.com` password-nya **bukan** `password123` (diubah manual sebelumnya) — seeder sengaja membiarkannya.
+  - Verifikasi nyata (curl ke `php artisan serve`): register kurir → 302 `/courier/dashboard` + halaman 200; validasi NIK kosong → balik `/register-kurir` + pesan; forgot → token tersimpan di DB + email tertulis di `storage/logs/laravel.log`; reset dengan token dari log → 302 `/index`, token terhapus, login sandi baru sukses & sandi lama gagal; register pasien tetap normal.
+  - **Pitfall uji curl**: `GET /` mengembalikan 302 ke `/index` — token CSRF hanya ada di halaman final, jadi pakai `curl -sL -c/-b` (follow redirect) saat mengambil `_token`, kalau tidak semua POST jadi HTTP 419.
+
 - **2026-11-20 — VERIFIKASI EMAIL DIMATIKAN (takeout)**: Seluruh alur verifikasi email sudah dihapus atas permintaan Luqni.
   - `App\Models\User` tidak lagi `implements MustVerifyEmail` (import ikut dihapus).
   - `app/Http/Controllers/Auth/EmailVerificationController.php` dihapus; `resources/views/pages/verify-email.blade.php` dihapus.
