@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AdminController extends Controller
 {
@@ -179,6 +180,27 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Password user berhasil direset menjadi: password123');
+    }
+
+    /**
+     * Kirim tautan reset kata sandi ke email user (dipicu admin).
+     * Berguna saat user lupa sandi dan minta bantuan admin apotek.
+     */
+    public function sendResetLink($id)
+    {
+        $user = User::findOrFail($id);
+
+        $status = Password::sendResetLink(['email' => $user->email]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('success', "Tautan reset kata sandi sudah dikirim ke {$user->email}.");
+        }
+
+        if ($status === Password::RESET_THROTTLED) {
+            return back()->with('error', 'Tautan baru saja dikirim. Tunggu sekitar satu menit sebelum mengirim ulang.');
+        }
+
+        return back()->with('error', "Gagal mengirim tautan reset ke {$user->email}.");
     }
 
     public function storeOrderFromChat(Request $request)

@@ -21,6 +21,12 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-sm font-medium">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card-sifantar overflow-hidden p-0">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -54,10 +60,26 @@
                                     <span class="px-2.5 py-1 bg-green-100 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-md">Pasien</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-right space-x-2">
-                                <a href="{{ route('admin.users.edit', $user->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-primary-orange hover:bg-orange-100 transition-colors">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </a>
+                            <td class="p-4 text-right">
+                                <div class="inline-flex items-center gap-2">
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" title="Edit data user" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-primary-orange hover:bg-orange-100 transition-colors">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    </a>
+
+                                    <form action="{{ route('admin.users.send-reset-link', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Kirim tautan reset kata sandi ke {{ $user->email }}?')">
+                                        @csrf
+                                        <button type="submit" title="Kirim link reset password" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('admin.users.reset-password', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Reset password {{ $user->email }} menjadi password123?')">
+                                        @csrf
+                                        <button type="submit" title="Reset ke password123" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                                            <i data-lucide="key-round" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
