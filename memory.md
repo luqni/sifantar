@@ -17,6 +17,10 @@
   - Gate `verified` belum dipasang di grup route mana pun: user belum verifikasi masih bisa membuka `/home` setelah login. Pasang middleware `verified` bila ingin penegakan penuh.
 - **Pitfall yang pernah terjadi**: `MustVerifyEmail` sudah di-`implements` tetapi `use`-nya masih dikomentari → `Interface "App\Models\MustVerifyEmail" not found`, aplikasi fatal total (semua request error). Selalu jalankan `php -l` + `php artisan tinker` setelah menyentuh model.
 - Riwayat migrasi: kolom `email_verified_at` sudah ada sejak migrasi awal, tidak perlu migrasi tambahan.
+- **Pitfall: "email tidak terkirim" saat lokal = NORMAL.** `MAIL_MAILER=log` cuma menulis isi email ke `storage/logs/laravel.log`. Ambil link verifikasi terbaru dengan:
+  `grep -o "http://localhost:8000/email/verify/[^)]*" storage/logs/laravel.log | tail -1`
+  Untuk benar-benar kirim ke inbox: ganti `.env` ke `MAIL_MAILER=smtp` + kredensial (Gmail butuh App Password 16 digit, bukan password akun).
+- **Shortcut verifikasi manual (dev)**: `php artisan tinker --execute="App\Models\User::find(ID)->forceFill(['email_verified_at'=>now()])->save();"`
 
 ## Build Frontend (Blocker yang Sering Muncul)
 - `npm run build` GAGAL di Node.js 18 (`CustomEvent is not defined`) — Vite 8 butuh Node 20.19+/22.12+.
