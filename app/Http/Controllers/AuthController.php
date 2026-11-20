@@ -23,13 +23,6 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
-            if (! Auth::user()->hasVerifiedEmail()) {
-                Auth::user()->sendEmailVerificationNotification();
-
-                return redirect()->route('verification.notice')
-                    ->with('status', 'verification-link-sent');
-            }
-
             if (Auth::user()->isCourier()) {
                 return redirect()->route('courier.dashboard');
             }
@@ -55,14 +48,12 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => 'patient',
+            'email_verified_at' => now(),
         ]);
-
-        $user->sendEmailVerificationNotification();
 
         Auth::login($user);
 
-        return redirect()->route('verification.notice')
-            ->with('status', 'verification-link-sent');
+        return redirect()->route('page', 'home');
     }
 
     public function logout(Request $request)

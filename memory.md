@@ -11,7 +11,15 @@
 - Middleware alias: `admin`, `courier` (didaftarkan di `bootstrap/app.php`).
 
 ## Log Keputusan & Catatan Khusus
-- **2026-11-20 — Verifikasi Email (MustVerifyEmail)**: `App\Models\User` meng-implements `Illuminate\Contracts\Auth\MustVerifyEmail`. Handler ada di `app/Http/Controllers/Auth/EmailVerificationController.php` (notice/verify/send) dengan route `verification.notice`, `verification.verify` (middleware `signed` + `throttle:6,1`), `verification.send`. View: `pages/verify-email.blade.php`.
+- **2026-11-20 — VERIFIKASI EMAIL DIMATIKAN (takeout)**: Seluruh alur verifikasi email sudah dihapus atas permintaan Luqni.
+  - `App\Models\User` tidak lagi `implements MustVerifyEmail` (import ikut dihapus).
+  - `app/Http/Controllers/Auth/EmailVerificationController.php` dihapus; `resources/views/pages/verify-email.blade.php` dihapus.
+  - Route `verification.notice` / `verification.verify` / `verification.send` dihapus dari `routes/web.php`.
+  - Register di `AuthController::register` langsung mengisi `email_verified_at => now()` lalu login + redirect `/home` — user baru bebas akses tanpa verifikasi.
+  - `email_verified_at` tetap ada di `#[Fillable]` dan cast `datetime` agar kolom DB tidak memicu mass-assignment error bila dipakai lagi.
+  - Status: diverifikasi `php -l` bersih, `route:list` tanpa route verifikasi, grep view/route verifikasi kosong.
+
+- **Riwayat (SUPERSEDED) — Verifikasi Email (MustVerifyEmail)**: `App\Models\User` meng-implements `Illuminate\Contracts\Auth\MustVerifyEmail`. Handler ada di `app/Http/Controllers/Auth/EmailVerificationController.php` (notice/verify/send) dengan route `verification.notice`, `verification.verify` (middleware `signed` + `throttle:6,1`), `verification.send`. View: `pages/verify-email.blade.php`.
   - Register → kirim `sendEmailVerificationNotification()` → redirect `verification.notice`.
   - Login pasien/kurir yang belum verifikasi → kirim ulang tautan + redirect notice. **Admin dikecualikan** dari gate ini.
   - Gate `verified` belum dipasang di grup route mana pun: user belum verifikasi masih bisa membuka `/home` setelah login. Pasang middleware `verified` bila ingin penegakan penuh.
