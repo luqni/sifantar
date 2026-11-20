@@ -40,6 +40,10 @@
         @apply bg-primary-green text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-green-100 active:scale-95 transition-all;
       }
 
+      .btn-primary-orange {
+        @apply bg-primary-orange text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-orange-100 active:scale-95 transition-all;
+      }
+
       .input-field {
         @apply bg-white rounded-2xl p-4 flex items-center gap-3 shadow-sm border border-orange-100 focus-within:border-primary-orange transition-colors;
       }

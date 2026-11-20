@@ -17,6 +17,12 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Password Reset (Lupa Kata Sandi)
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:6,1')->name('password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+
 // Admin Routes (Admin Only)
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -24,6 +30,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUser'])->name('admin.users.edit');
     Route::put('/admin/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::post('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword'])->name('admin.users.reset-password');
+    Route::post('/admin/users/{id}/send-reset-link', [AdminController::class, 'sendResetLink'])->name('admin.users.send-reset-link');
     Route::get('/admin/articles', [AdminController::class, 'articles'])->name('admin.articles');
     Route::get('/admin/chat', [AdminController::class, 'chat'])->name('admin.chat');
     Route::post('/admin/chat/order', [AdminController::class, 'storeOrderFromChat'])->name('admin.chat.order');
@@ -68,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Page routes
 Route::get('/{page}', function ($page) {
-    if ($page === 'index' || $page === 'register') {
+    if ($page === 'index' || $page === 'register' || $page === 'register-kurir') {
         if (auth()->check()) {
             if (auth()->user()->isAdmin()) {
                 return redirect()->route('admin.dashboard');
