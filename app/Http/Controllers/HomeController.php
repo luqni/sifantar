@@ -21,7 +21,7 @@ class HomeController extends Controller
         }
 
         $activeDeliveries = Delivery::with(['courier'])->where('patient_id', Auth::id())
-            ->whereIn('status', ['pending', 'preparing', 'ready', 'delivering'])
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'awaiting_courier', 'delivering'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -71,45 +71,89 @@ class HomeController extends Controller
 
     public function tracking($id)
     {
-        $delivery = Delivery::with(['patient', 'courier'])->where('patient_id', Auth::id())->findOrFail($id);
+        $query = Delivery::with(['patient', 'courier', 'items.medicine']);
+
+        if (Auth::user()->isAdmin()) {
+            // Admin dapat melacak seluruh pengantaran
+        } elseif (Auth::user()->isCourier()) {
+            // Kurir dapat melihat tugas miliknya atau yang siap diambil
+            $query->where(function ($q) {
+                $q->where('courier_id', Auth::id())
+                  ->orWhere('status', 'awaiting_courier');
+            });
+        } else {
+            // Pasien hanya dapat melihat pengantarannya sendiri
+            $query->where('patient_id', Auth::id());
+        }
+
+        $delivery = $query->findOrFail($id);
         return view('pages.tracking', compact('delivery'));
     }
 
     public function trackingApi($id)
     {
-        $delivery = Delivery::with(['courier'])->where('patient_id', Auth::id())->findOrFail($id);
+        $query = Delivery::with(['patient', 'courier']);
+
+        if (Auth::user()->isAdmin()) {
+            // Admin dapat mengakses data live tracking
+        } elseif (Auth::user()->isCourier()) {
+            $query->where(function ($q) {
+                $q->where('courier_id', Auth::id())
+                  ->orWhere('status', 'awaiting_courier');
+            });
+        } else {
+            $query->where('patient_id', Auth::id());
+        }
+
+        $delivery = $query->findOrFail($id);
         $courier = $delivery->courier;
         $eta = null;
+        $distanceFormatted = null;
 
-        if ($courier && $courier->latitude && $delivery->latitude) {
-            // Simple Haversine distance calculation (km)
-            $earthRadius = 6371;
-            $latDelta = deg2rad($delivery->latitude - $courier->latitude);
-            $lonDelta = deg2rad($delivery->longitude - $courier->longitude);
-            $a = sin($latDelta / 2) * sin($latDelta / 2) +
-                 cos(deg2rad($courier->latitude)) * cos(deg2rad($delivery->latitude)) *
-                 sin($lonDelta / 2) * sin($lonDelta / 2);
-            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-            $distance = $earthRadius * $c;
+        // Hitung jarak dan estimasi waktu tiba (ETA)
+        $destLat = $delivery->latitude;
+        $destLng = $delivery->longitude;
 
-            // Assume average speed 30km/h for courier in city
-            $minutes = round(($distance / 30) * 60);
-            if ($minutes < 1) $minutes = 1;
-            
+        if ($destLat && $destLng) {
+            $startLat = config('app.pharmacy_lat', -6.2120);
+            $startLng = config('app.pharmacy_lng', 106.8420);
+
+            if ($delivery->status === 'delivering' && $courier && $courier->latitude) {
+                $startLat = (float) $courier->latitude;
+                $startLng = (float) $courier->longitude;
+            }
+
+            $distance = $this->calculateDistance($startLat, $startLng, (float)$destLat, (float)$destLng);
+            $distanceFormatted = number_format($distance, 1) . ' km';
+
+            $prepTime = ($delivery->status === 'delivering') ? 0 : 15;
+            $minutes = round(($distance / 30) * 60) + $prepTime;
+            if ($minutes < 5) $minutes = 5;
+
             $arrival = now()->addMinutes($minutes);
             $eta = $arrival->format('H:i');
-            
-            // Update the record for the dashboard
+
+            // Simpan estimasi kedatangan terbaru
             $delivery->update(['estimation_arrival' => $arrival]);
+        } elseif ($delivery->estimation_arrival) {
+            $eta = $delivery->estimation_arrival->format('H:i');
         }
-        
+
         return response()->json([
             'status' => $delivery->status,
             'eta' => $eta,
+            'distance' => $distanceFormatted,
             'courier' => $courier ? [
-                'lat' => $courier->latitude,
-                'lng' => $courier->longitude,
-            ] : null
+                'name' => $courier->name,
+                'phone' => $courier->phone,
+                'lat' => $courier->latitude ? (float) $courier->latitude : null,
+                'lng' => $courier->longitude ? (float) $courier->longitude : null,
+            ] : null,
+            'delivery' => [
+                'lat' => $delivery->latitude ? (float) $delivery->latitude : null,
+                'lng' => $delivery->longitude ? (float) $delivery->longitude : null,
+                'address' => $delivery->delivery_address,
+            ]
         ]);
     }
 

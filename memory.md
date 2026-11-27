@@ -11,6 +11,17 @@
 - Middleware alias: `admin`, `courier` (didaftarkan di `bootstrap/app.php`).
 
 ## Log Keputusan & Catatan Khusus
+- **2026-11-27 — PENINGKATAN & PENYELARASAN ALUR LIVE TRACKING (Real-Time Tracking Engine)**:
+  - **Otorisasi Multi-Peran**: `HomeController::tracking` dan `HomeController::trackingApi` sebelumnya hanya mengizinkan `patient_id === Auth::id()`, menyebabkan HTTP 404 saat Admin atau Kurir membuka fitur lacak dari riwayat/dashboard. Diperbaiki agar Admin dapat melacak seluruh pesanan, Kurir dapat melacak tugas yang diembannya atau yang berstatus `awaiting_courier`, dan Pasien melacak pesanannya sendiri.
+  - **Perbaikan Alur Status Pasien & Admin**:
+    - `HomeController::index`: Sebelumnya tidak menyertakan `awaiting_courier` pada query beranda pasien sehingga pesanan aktif sempat lenyap saat admin memanggil kurir. Telah diperbaiki mencakup `['pending', 'preparing', 'ready', 'awaiting_courier', 'delivering']`.
+    - `AdminController::dashboard`: Menambahkan `delivering` ke pesanan aktif admin dan menghitung total pengantaran (`awaiting_courier` + `delivering`). Tombol pintas "Lacak" langsung disediakan pada kartu dashboard admin dan halaman detail pengantaran admin.
+  - **Penyelarasan Tampilan & Frontend Tracking (`pages/tracking.blade.php`)**:
+    - **Peta Leaflet Alami**: Menghapus filter CSS invert negatif agar tampilan OpenStreetMap terang, jelas, dan natural. Marker apotek (hijau), tujuan pasien (oranye), dan kurir bergerak (hijau animasi radar) terintegrasi dengan penyesuaian zoom (`fitBounds`) otomatis.
+    - **Stepper Timeline 4 Tahap Sekuensial**: 1. Resep & Obat Disiapkan ➔ 2. Paket Siap di Apotek ➔ 3. Sedang Diantar Kurir ➔ 4. Obat Telah Diterima.
+    - **Dynamic Live Polling**: Polling tiap 4 detik via `tracking.api` memperbarui badge status header, estimasi kedatangan (ETA) live, jarak tempuh, kartu profil kurir (nama + tombol panggil telepon), dan pergerakan marker kurir secara dinamis tanpa perlu reload halaman.
+  - **Pengujian & Verifikasi**: Test suite `tests/Feature/LiveTrackingFlowTest.php` menguji seluruh alur live tracking multi-peran (37 assertions passed). Total test suite mencapai 4 file (69 assertions passed).
+
 - **2026-11-27 — TAKEOUT INPUT DAFTAR OBAT PASIEN & MEKANISME INPUT OBAT ADMIN/APOTEKER**:
   - **Sisi Pasien (`delivery-request.blade.php`)**: Field input textarea `medicine_list` dihapus sepenuhnya sesuai arahan Yang Mulia Baginda Raja Luqni Baehaqi. Digantikan kartu informasi resmi "Verifikasi Obat oleh Apoteker" yang menjelaskan bahwa resep & obat akan diperiksa dan diinput langsung oleh petugas farmasi. Input alamat pengantaran dipertahankan dengan deteksi GPS real-time.
   - **Controller Pasien (`DeliveryRequestController.php`)**: Validasi `medicine_list` di-takeout; pesanan langsung dibuat dengan status `pending` dan `total_price = 0`; auto-chat ke admin/apoteker diperbarui meminta apoteker memeriksa resep dan menginput obat.

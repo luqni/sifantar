@@ -86,8 +86,12 @@
                         <span class="bg-orange-100 text-primary-orange text-[10px] font-black px-2 py-1 rounded-lg uppercase">Menunggu</span>
                     @elseif($delivery->status === 'preparing')
                         <span class="bg-yellow-100 text-yellow-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Disiapkan</span>
-                    @else
+                    @elseif($delivery->status === 'ready')
                         <span class="bg-blue-100 text-blue-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Siap</span>
+                    @elseif($delivery->status === 'awaiting_courier')
+                        <span class="bg-purple-100 text-purple-700 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Cari Kurir</span>
+                    @elseif($delivery->status === 'delivering')
+                        <span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Diantar</span>
                     @endif
                 </div>
                 
@@ -129,6 +133,22 @@
                             Panggil Kurir
                         </button>
                     </form>
+                @elseif($delivery->status === 'awaiting_courier')
+                    <div class="py-2.5 px-3 bg-purple-50 text-purple-700 rounded-xl text-center text-xs font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 animate-spin"></i>
+                        <span>Menunggu Kurir Mengambil Pesanan</span>
+                    </div>
+                @elseif($delivery->status === 'delivering')
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 py-2.5 px-3 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 truncate">
+                            <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+                            <span class="truncate">Diantar: {{ $delivery->courier->name ?? 'Kurir' }}</span>
+                        </div>
+                        <a href="{{ route('tracking.show', $delivery->id) }}" class="py-2.5 px-3 bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-blue-600 active:scale-95 transition-all shrink-0">
+                            <i data-lucide="map" class="w-4 h-4"></i>
+                            <span>Lacak</span>
+                        </a>
+                    </div>
                 @endif
             </div>
             @empty

@@ -18,8 +18,8 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        $deliveries = Delivery::with(['patient', 'items.medicine'])
-            ->whereIn('status', ['pending', 'preparing', 'ready', 'awaiting_courier'])
+        $deliveries = Delivery::with(['patient', 'courier', 'items.medicine'])
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'awaiting_courier', 'delivering'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -27,7 +27,7 @@ class AdminController extends Controller
             'pending' => Delivery::where('status', 'pending')->count(),
             'preparing' => Delivery::where('status', 'preparing')->count(),
             'ready' => Delivery::where('status', 'ready')->count(),
-            'delivering' => Delivery::where('status', 'awaiting_courier')->count(),
+            'delivering' => Delivery::whereIn('status', ['awaiting_courier', 'delivering'])->count(),
         ];
 
         return view('pages.admin-dashboard', compact('deliveries', 'stats'));

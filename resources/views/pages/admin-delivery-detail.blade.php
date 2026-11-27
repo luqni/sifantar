@@ -234,6 +234,11 @@
                 <p class="text-xs font-semibold">Pesanan telah selesai dan berhasil diterima oleh pasien.</p>
             </div>
         @endif
+
+        <a href="{{ route('tracking.show', $delivery->id) }}" class="w-full bg-blue-50 text-blue-600 py-3.5 rounded-2xl font-black uppercase text-xs tracking-wider border border-blue-200 flex items-center justify-center gap-2 hover:bg-blue-100 active:scale-95 transition-all">
+            <i data-lucide="map" class="w-4 h-4"></i>
+            Lihat Live Tracking di Peta
+        </a>
     </div>
 </div>
 
