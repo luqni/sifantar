@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Delivery;
+use App\Models\DeliveryItem;
+use App\Models\Medicine;
 use App\Models\Article;
 use App\Models\Chat;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
@@ -48,8 +51,9 @@ class AdminController extends Controller
 
     public function showDelivery($id)
     {
-        $delivery = Delivery::with(['patient', 'items.medicine'])->findOrFail($id);
-        return view('pages.admin-delivery-detail', compact('delivery'));
+        $delivery = Delivery::with(['patient', 'courier', 'items.medicine'])->findOrFail($id);
+        $availableMedicines = Medicine::orderBy('name')->get();
+        return view('pages.admin-delivery-detail', compact('delivery', 'availableMedicines'));
     }
 
     public function updateDeliveryStatus(Request $request, $id)
@@ -63,9 +67,12 @@ class AdminController extends Controller
         
         if ($request->status === 'preparing') {
             $title = "💊 Obat Sedang Disiapkan";
-            $message = "Apoteker kami sedang menyiapkan obat untuk pesanan #{$delivery->tracking_number}.";
-        } elseif ($request->status === 'ready' || $request->status === 'awaiting_courier') {
-            $title = "📦 Obat Siap Dikirim";
+            $message = "Apoteker kami telah memverifikasi resep & sedang menyiapkan obat untuk pesanan #{$delivery->tracking_number}.";
+        } elseif ($request->status === 'ready') {
+            $title = "📦 Obat Selesai Disiapkan";
+            $message = "Pesanan #{$delivery->tracking_number} telah selesai disiapkan oleh farmasi.";
+        } elseif ($request->status === 'awaiting_courier') {
+            $title = "🛵 Menunggu Kurir";
             $message = "Pesanan #{$delivery->tracking_number} sudah siap dan sedang menunggu kurir penjemput.";
         }
 
@@ -77,6 +84,62 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Status pesanan berhasil diperbarui.');
+    }
+
+    public function addDeliveryItem(Request $request, $id)
+    {
+        $delivery = Delivery::findOrFail($id);
+
+        $request->validate([
+            'medicine_name' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'price_at_time' => 'nullable|numeric|min:0',
+        ]);
+
+        $matchedMedicine = Medicine::whereRaw('LOWER(name) = ?', [strtolower(trim($request->medicine_name))])->first();
+
+        $price = $request->filled('price_at_time') && $request->price_at_time !== null
+            ? (float) $request->price_at_time
+            : ($matchedMedicine ? (float) $matchedMedicine->price : 0);
+
+        DeliveryItem::create([
+            'delivery_id' => $delivery->id,
+            'medicine_id' => $matchedMedicine ? $matchedMedicine->id : null,
+            'medicine_name' => trim($request->medicine_name),
+            'quantity' => (int) $request->quantity,
+            'price_at_time' => $price,
+        ]);
+
+        // Recalculate total_price
+        $total = $delivery->items()->sum(DB::raw('quantity * price_at_time'));
+        $delivery->update(['total_price' => $total]);
+
+        return back()->with('success', 'Obat berhasil ditambahkan ke pesanan.');
+    }
+
+    public function deleteDeliveryItem($id, $itemId)
+    {
+        $delivery = Delivery::findOrFail($id);
+        $item = DeliveryItem::where('delivery_id', $delivery->id)->findOrFail($itemId);
+        $item->delete();
+
+        // Recalculate total_price
+        $total = $delivery->items()->sum(DB::raw('quantity * price_at_time'));
+        $delivery->update(['total_price' => $total]);
+
+        return back()->with('success', 'Obat berhasil dihapus dari pesanan.');
+    }
+
+    public function updateDeliveryTotalPrice(Request $request, $id)
+    {
+        $delivery = Delivery::findOrFail($id);
+        $request->validate([
+            'total_price' => 'required|numeric|min:0',
+        ]);
+
+        $delivery->update(['total_price' => $request->total_price]);
+
+        return back()->with('success', 'Total harga pesanan berhasil diperbarui.');
     }
 
     public function storeArticle(Request $request)

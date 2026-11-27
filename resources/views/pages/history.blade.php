@@ -48,11 +48,13 @@
             <div class="mt-4 p-4 bg-gray-50 rounded-2xl">
                 <p class="text-[9px] text-gray-400 font-black uppercase mb-2 tracking-widest">Daftar Obat:</p>
                 <div class="flex flex-wrap gap-2">
-                    @foreach($delivery->items as $item)
+                    @forelse($delivery->items as $item)
                     <span class="text-[10px] bg-white border border-gray-100 px-2 py-1 rounded-lg font-bold text-gray-600">
                         {{ $item->medicine ? $item->medicine->name : $item->medicine_name }}
                     </span>
-                    @endforeach
+                    @empty
+                    <span class="text-[11px] text-gray-400 italic">Menunggu verifikasi & input apoteker</span>
+                    @endforelse
                 </div>
             </div>
         </div>

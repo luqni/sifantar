@@ -36,6 +36,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/chat/order', [AdminController::class, 'storeOrderFromChat'])->name('admin.chat.order');
     Route::get('/admin/delivery/{id}', [AdminController::class, 'showDelivery'])->name('admin.delivery.show');
     Route::post('/admin/delivery/{id}/status', [AdminController::class, 'updateDeliveryStatus'])->name('admin.delivery.status');
+    Route::post('/admin/delivery/{id}/items', [AdminController::class, 'addDeliveryItem'])->name('admin.delivery.items.store');
+    Route::delete('/admin/delivery/{id}/items/{itemId}', [AdminController::class, 'deleteDeliveryItem'])->name('admin.delivery.items.destroy');
+    Route::put('/admin/delivery/{id}/total-price', [AdminController::class, 'updateDeliveryTotalPrice'])->name('admin.delivery.total-price');
     Route::post('/admin/articles', [AdminController::class, 'storeArticle'])->name('admin.articles.store');
     Route::get('/admin/articles/{id}/edit', [AdminController::class, 'editArticle'])->name('admin.articles.edit');
     Route::put('/admin/articles/{id}', [AdminController::class, 'updateArticle'])->name('admin.articles.update');

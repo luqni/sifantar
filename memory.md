@@ -11,6 +11,17 @@
 - Middleware alias: `admin`, `courier` (didaftarkan di `bootstrap/app.php`).
 
 ## Log Keputusan & Catatan Khusus
+- **2026-11-27 — TAKEOUT INPUT DAFTAR OBAT PASIEN & MEKANISME INPUT OBAT ADMIN/APOTEKER**:
+  - **Sisi Pasien (`delivery-request.blade.php`)**: Field input textarea `medicine_list` dihapus sepenuhnya sesuai arahan Yang Mulia Baginda Raja Luqni Baehaqi. Digantikan kartu informasi resmi "Verifikasi Obat oleh Apoteker" yang menjelaskan bahwa resep & obat akan diperiksa dan diinput langsung oleh petugas farmasi. Input alamat pengantaran dipertahankan dengan deteksi GPS real-time.
+  - **Controller Pasien (`DeliveryRequestController.php`)**: Validasi `medicine_list` di-takeout; pesanan langsung dibuat dengan status `pending` dan `total_price = 0`; auto-chat ke admin/apoteker diperbarui meminta apoteker memeriksa resep dan menginput obat.
+  - **Sisi Admin / Apoteker (`admin-delivery-detail.blade.php` & `AdminController.php`)**:
+    - Tersedia kartu kelola obat lengkap: menampilkan daftar obat, qty, harga satuan, subtotal, dan tombol hapus jika status masih `pending`/`preparing`/`ready`.
+    - Form input obat baru dilengkapi `<datalist>` dari master `Medicine` dengan fitur auto-fill harga, input qty, dan kalkulasi otomatis `total_price` pesanan.
+    - Penambahan route: `POST /admin/delivery/{id}/items` (`admin.delivery.items.store`), `DELETE /admin/delivery/{id}/items/{itemId}` (`admin.delivery.items.destroy`), dan `PUT /admin/delivery/{id}/total-price`.
+    - Sinkronisasi alur status: `pending` (Terima & Mulai Siapkan Obat) → `preparing` (Selesai Disiapkan) → `ready` (Panggil Kurir) → `awaiting_courier` (diambil oleh kurir di dashboard).
+  - **Toleransi Data Kosong**: View `admin-dashboard`, `delivery-detail`, dan `history` diperbarui agar menampilkan pesan informatif ("Menunggu input resep/obat apoteker") saat item pesanan baru belum diinput.
+  - **Pengujian & Verifikasi**: Test suite `tests/Feature/DeliveryRequestFlowTest.php` mencakup alur lengkap: request pasien tanpa obat → auto-chat → admin membuka detail → input obat 1 & 2 → hapus obat 1 → update status workflow. Seluruh 32 assertions passed!
+
 - **2026-11-20 — TOMBOL "BELI LAGI" DIAKTIFKAN (Takeout)**: Sebelumnya `history.blade.php` hanya punya `<button>` mati tanpa aksi.
   - `history.blade.php`: tombol jadi `<a href="{{ route('delivery-request.create', ['from' => $delivery->id]) }}">` **hanya bila `status === 'completed'`**; status lain tetap `<button disabled>` abu pudar. Ikon `rotate-ccw`.
   - `DeliveryRequestController::create(Request $request)` sekarang menerima query `?from=ID`: ambil `Delivery::with('items')` yang **`where('patient_id', Auth::id())`** (WAJIB — kalau tidak, pasien bisa mengintip/menyalin order pasien lain), lalu render view dengan `compact('repeat','medicines')`. `$medicines` = nama obat per baris (`medicine->name` fallback `medicine_name`).

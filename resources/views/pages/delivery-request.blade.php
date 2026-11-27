@@ -17,8 +17,7 @@
         <div>
             <p class="text-[10px] font-black text-primary-green uppercase tracking-widest">Beli Lagi</p>
             <p class="text-[11px] text-gray-600 font-medium mt-1 leading-relaxed">
-                Formulir diisi otomatis dari pesanan <span class="font-black text-gray-800">#{{ $repeat->tracking_number }}</span>.
-                Periksa kembali daftar obat sebelum mengirim.
+                Alamat pengantaran diisi otomatis dari pesanan <span class="font-black text-gray-800">#{{ $repeat->tracking_number }}</span>.
             </p>
         </div>
     </div>
@@ -29,21 +28,26 @@
         <input type="hidden" name="latitude" id="lat_input">
         <input type="hidden" name="longitude" id="lng_input">
         
-        <div class="mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Daftar Obat (Resep)</h3>
-                <span id="location_status" class="text-[9px] bg-blue-100 text-blue-600 font-bold px-2 py-0.5 rounded-full">Mencari GPS...</span>
+        <!-- Informasi Penanganan Resep oleh Apoteker -->
+        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start gap-3.5 shadow-sm">
+            <div class="w-9 h-9 rounded-xl bg-primary-green/10 text-primary-green flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="clipboard-check" class="w-5 h-5"></i>
             </div>
-            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm focus-within:border-primary-green transition-colors">
-                <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Tuliskan nama obat (satu obat per baris):</p>
-                <textarea name="medicine_list" rows="6" required placeholder="Contoh:&#10;Paracetamol 500mg (10 tablet)&#10;Amoxicillin (1 botol)&#10;Vitamin C..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none">{{ old('medicine_list', $medicines ?? '') }}</textarea>
+            <div>
+                <p class="text-[11px] font-black text-primary-green uppercase tracking-wider">Verifikasi Obat oleh Apoteker</p>
+                <p class="text-xs text-gray-600 font-medium mt-1 leading-relaxed">
+                    Daftar dan rincian obat akan diperiksa serta diinput langsung oleh petugas farmasi/apoteker kami setelah permintaan pengantaran ini diterima.
+                </p>
             </div>
         </div>
 
         <div class="mb-8">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Alamat Pengantaran</h3>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Alamat Pengantaran</h3>
+                <span id="location_status" class="text-[9px] bg-blue-100 text-blue-600 font-bold px-2.5 py-0.5 rounded-full transition-colors">Mencari GPS...</span>
+            </div>
             <div class="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm focus-within:border-primary-orange transition-colors">
-                <textarea name="address" rows="3" required placeholder="Masukkan alamat lengkap pengantaran..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none">{{ old('address', $repeat->delivery_address ?? '') }}</textarea>
+                <textarea name="address" rows="3" required placeholder="Masukkan alamat lengkap pengantaran..." class="w-full bg-transparent outline-none text-sm font-medium text-gray-800 placeholder:text-gray-400 resize-none">{{ old('address', $repeat->delivery_address ?? (auth()->user()->address ?? '')) }}</textarea>
             </div>
         </div>
 

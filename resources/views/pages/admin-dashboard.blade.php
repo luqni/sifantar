@@ -94,9 +94,11 @@
                 <div class="flex gap-2 text-xs font-medium text-gray-600 mb-3 bg-gray-50 p-2 rounded-lg">
                     <i data-lucide="pill" class="w-4 h-4 text-gray-400"></i>
                     <span class="truncate">
-                        @foreach($delivery->items as $item)
+                        @forelse($delivery->items as $item)
                             {{ $item->medicine ? $item->medicine->name : $item->medicine_name }}{{ !$loop->last ? ', ' : '' }}
-                        @endforeach
+                        @empty
+                            <span class="text-amber-600 font-bold italic text-[11px]">Menunggu input resep/obat apoteker</span>
+                        @endforelse
                     </span>
                 </div>
 

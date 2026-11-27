@@ -30,9 +30,11 @@
                         <h4 class="font-black text-gray-800 text-lg">#{{ $delivery->tracking_number }}</h4>
                     </div>
                     <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest italic">
-                        @foreach($delivery->items as $item)
+                        @forelse($delivery->items as $item)
                             {{ $item->medicine ? $item->medicine->name : $item->medicine_name }}{{ !$loop->last ? ' • ' : '' }}
-                        @endforeach
+                        @empty
+                            Menunggu verifikasi dan input obat oleh apoteker
+                        @endforelse
                     </p>
                     <div class="bg-green-100 text-[10px] font-black text-green-700 px-3 py-1 rounded-full mt-3 inline-block uppercase tracking-widest">
                         {{ strtoupper($delivery->status) }}
